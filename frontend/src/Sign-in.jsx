@@ -22,8 +22,6 @@ function SignIn() {
   // Handle changes in form inputs
   const handleChangeInForm = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
-    // console.log( e.target.value);
-    console.log(formData);
   };
 
   // Handle form submission
@@ -37,23 +35,17 @@ function SignIn() {
 
     try {
       dispatch(SignInStart());
-      // Log the formData being sent to the server
-      console.log("Sending data:", formData);
 
       // Send a POST request to the server
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
         credentials: "include",
       });
 
-      // Check for response status
-      console.log("Response status:", res.status);
-
       // Parse the JSON response
       const data = await res.json();
-      console.log("Response data:", data);
 
       // Handle error responses from the server
       if (data.success === false) {
@@ -139,7 +131,7 @@ function SignIn() {
                       onChange={handleChangeInForm}
                       id="password"
                       type="password"
-                      // required="true"
+                    // required="true"
                     />
                   </div>
                 </div>

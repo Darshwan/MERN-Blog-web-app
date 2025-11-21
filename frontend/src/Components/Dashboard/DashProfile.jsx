@@ -50,15 +50,12 @@ function DashProfile() {
   const filePickerRef = useRef();
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    console.log(file);
     if (file) {
       setImageFile(file);
-      // log
       setImageFileUrl(URL.createObjectURL(file));
-      console.log(file);
     }
   };
-  console.log(currentUser.username);
+
 
   useEffect(() => {
     if (imageFile) {
@@ -67,7 +64,6 @@ function DashProfile() {
   }, [imageFile]);
   const uploadImage = async () => {
     // console.log((imageFileUploadProgress, imageFileUploadProgressError));
-    console.log("uploading image");
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
@@ -79,7 +75,6 @@ function DashProfile() {
       //     (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       // },
       (error) => {
-        console.log(error);
         setimageFileUploadProgressError(
           "cannot upload image (file must be less than 2 MB"
         );
@@ -88,7 +83,6 @@ function DashProfile() {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
           // setProfilePicUrl(downloadURL);
-          console.log(downloadURL);
           setFormData({ ...formData, profilePic: downloadURL });
         });
       }
@@ -114,7 +108,6 @@ function DashProfile() {
   const handleChangeinForm = (e) => {
     // setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
     setFormData({ ...formData, [e.target.id]: e.target.value });
-    console.log(formData);
   };
   const handleProfileFormSubmit = async (e) => {
     e.preventDefault();
@@ -125,7 +118,7 @@ function DashProfile() {
     try {
       dispatch(updateStart());
       const res = await fetch(
-        `http://localhost:3000/api/user/update/${currentUser._id}`,
+        `/api/user/update/${currentUser._id}`,
         {
           method: "PUT",
           headers: {
@@ -331,7 +324,7 @@ function DashProfile() {
             {currentUser.isAdmin && (
               <div className="px-3 pt-2 pb-1 flex justify-center">
                 <Link
-                to="/posts/create"
+                  to="/posts/create"
                   type="button"
                   className="w-full flex items-center justify-center whitespace-nowrap text-sm shadow-md font-medium border rounded-md dark:bg-white  dark:text-black dark:hover:text-white dark:hover:bg-gray-900 bg-black text-white hover:bg-white hover:text-gray-900 transition-colors duration-300 font-mediumh-10 px-4 py-3"
                 >

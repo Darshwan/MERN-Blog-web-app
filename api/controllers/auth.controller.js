@@ -6,8 +6,6 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 export const signup = async (req, res, next) => {
-  console.log(req.body);
-  // res.json({message: "welcome to register"})
   const { username, email, password } = req.body;
 
   if (
@@ -20,9 +18,7 @@ export const signup = async (req, res, next) => {
   ) {
     next(errorHandler(400, "All fields are required"));
   }
-  console.log("password: ", password);
   const hashedPassword = await bcryptjs.hash(password, 10);
-  console.log("Hashed password: ", hashedPassword);
   const newUser = new User({
     username: username,
     email: email,
@@ -31,38 +27,21 @@ export const signup = async (req, res, next) => {
   try {
     await newUser.save();
     res.json("Signup Successfull");
-    console.log(req.body);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
 export const continueWithGoogle = async (req, res, next) => {
   const { googleUserName, email, imageUrl, uid } = req.body;
-  console.log("logged request from backend: ", req.body);
 
   try {
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
-    if (user) {
-      const token = jwt.sign(
-        { id: user._id, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" }
-      );
-      console.log("token is: ", token);
-
-      const { password, ...rest } = user._doc;
-      return res
-        .status(200)
-        .cookie("access_token", token, {
-          httpOnly: true,
-          secure: false,
-        })
-        .json(rest); 
-    } else {
-      const hashedPassword = await bcryptjs.hashSync(uid, 10);
-      const newUser = new User({
+    if (!user) {
+      // Create new user if not exists
+      const hashedPassword = await bcryptjs.hash(uid, 10);
+      user = new User({
         username:
           googleUserName.toLowerCase().split(" ").join("") +
           Math.random().toString(9).slice(-4),
@@ -70,25 +49,31 @@ export const continueWithGoogle = async (req, res, next) => {
         password: hashedPassword,
         profilePic: imageUrl,
       });
-
-      await newUser.save();
-      console.log("created user is", req.body);
-
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-      const { password, ...rest } = newUser._doc;
-
-      return res
-        .cookie("access_token", token, {
-          httpOnly: true,
-          sameSite: "None",
-        })
-        .status(200)
-        .json({
-          message: "Login successful",
-          user: rest, 
-        });
+      await user.save();
     }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    const { password, ...rest } = user._doc;
+
+    return res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // ✅ works in prod
+        sameSite: "Strict", // or "None" if cross-site
+      })
+      .status(200)
+      .json({
+        message: "Login successful",
+        user: rest, // ✅ always return same structure
+      });
+
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };

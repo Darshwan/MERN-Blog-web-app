@@ -1,6 +1,6 @@
 import express from 'express'
-import {  continueWithGoogle, signup } from '../controllers/auth.controller.js';
-import {  } from '../controllers/update.controller.js';
+import { continueWithGoogle, signup } from '../controllers/auth.controller.js';
+
 import { login } from '../controllers/login.controller.js';
 import { verifyToken } from '../utils/utils.js';
 import { deleteUser } from '../controllers/deleteUser.controller.js';

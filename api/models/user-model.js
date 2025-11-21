@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema(
             type: String,
             default: "I am a passionate blogger and web developer."
         }
-    }, {Timestamp: true}
+    }, { timestamps: true }
 )
 
 

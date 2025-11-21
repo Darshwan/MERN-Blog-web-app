@@ -6,7 +6,7 @@ dotenv.config();
 import { errorHandler } from "../utils/error.js";
 
 export const login = async (req, res, next) => {
-  const { username, password } = req.body; 
+  const { username, password } = req.body;
 
   if (!username || !password || username === "" || password === "") {
     next(errorHandler(400, "All fields are required"));
@@ -17,7 +17,7 @@ export const login = async (req, res, next) => {
     if (!validUser) {
       next(errorHandler(404, "User Not found"));
     }
-    const validPassword = bcryptjs.compareSync(password, validUser.password);
+    const validPassword = await bcryptjs.compare(password, validUser.password);
     if (!validPassword) {
       return next(errorHandler(400, "Invalid Password"));
     }
@@ -30,7 +30,7 @@ export const login = async (req, res, next) => {
       .status(200)
       .cookie("access_token", token, {
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
       })
       .json({
         success: true,
@@ -38,8 +38,6 @@ export const login = async (req, res, next) => {
         token: token,
         user: rest,
       });
-      
-    console.log(rest);
   } catch (error) {
     next(error);
   }
