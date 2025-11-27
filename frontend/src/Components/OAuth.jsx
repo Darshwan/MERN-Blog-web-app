@@ -46,7 +46,7 @@ function OAuth() {
           });
           const data = await res.json();
           if (res.ok) {
-            dispatch(signInSuccess(data));
+            dispatch(signInSuccess(data.user));
             console.log(`Navigating to /dashboard`);
             navigate("/dashboard/?tab=profile");
           }

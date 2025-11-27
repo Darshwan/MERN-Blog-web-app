@@ -52,7 +52,7 @@ function SignIn() {
         dispatch(signInFailure(data.message));
       }
       if (res.ok) {
-        dispatch(signInSuccess(data));
+        dispatch(signInSuccess(data.user));
         navigate("/dashboard/?tab=profile");
 
         setsignupMsg(true);

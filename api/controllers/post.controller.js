@@ -24,18 +24,28 @@ export const createPost = async (req, res) => {
       post: savedPost,
     });
     console.log(savedPost);
-    
+
   } catch (error) {
     // next(error);
     console.log(error);
-    
+
   }
 };
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await Posts.find();
-    res.json(posts);
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.order === 'asc' ? 1 : -1;
+    const posts = await Posts.find({
+      ...(req.query.slug && { slug: req.query.slug }),
+      ...(req.query.postId && { _id: req.query.postId }),
+    }).sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
+
+    res.status(200).json({
+      posts,
+      totalPosts: posts.length, // Note: This should ideally be a separate count query for pagination
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

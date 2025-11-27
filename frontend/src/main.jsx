@@ -19,6 +19,8 @@ import { Provider } from 'react-redux'
 import { PersistGate } from "redux-persist/integration/react";
 
 
+import PostPage from "./Components/Posts/PostPage.jsx";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/posts",
     element: <Posts />,
+  },
+  {
+    path: "/post/:postSlug",
+    element: <PostPage />,
   },
   {
     path: "/login",
@@ -58,11 +64,11 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <PersistGate persistor={persistor}>
- <Provider store={store}>
-  <ThemeProvider>
-    <RouterProvider router={router} />
-    </ThemeProvider>
-    </Provider>
+      <Provider store={store}>
+        <ThemeProvider>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </Provider>
     </PersistGate>
   </React.StrictMode>
 );

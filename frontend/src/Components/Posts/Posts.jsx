@@ -1,91 +1,137 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
 import { Link } from "react-router-dom";
-import { AiOutlineEye } from "react-icons/ai";
-import {
-  AiOutlineComment,
-  AiOutlineHeart,
-  AiOutlineCompress,
-} from "react-icons/ai";
-
+import { AiOutlineEye, AiOutlineComment, AiOutlineHeart } from "react-icons/ai";
+import { Spinner, Alert } from "flowbite-react";
 
 function Posts() {
   const [posts, setPosts] = useState([]);
-  // const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-      const fetchPosts = async () => {
-        try {
-          const response = await fetch(
-            "http://localhost:3000/api/posts/getposts"
-          );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const data = await response.json();
-          setPosts(data);
-        } catch (error) {
-          // setError(error.message);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/posts/getposts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts");
         }
-      };
+        const data = await response.json();
+        setPosts(data.posts);
+        setError(null);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchPosts();
-    }, []);
+    fetchPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="flex justify-center items-center min-h-screen">
+          <Spinner size="xl" />
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header />
+        <div className="flex justify-center items-center min-h-screen px-4">
+          <Alert color="failure" className="max-w-md w-full">
+            <span className="font-medium">Error!</span> {error}
+          </Alert>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
-      <div className="p-2 md:p-8 flex flex-col justify-center items-center gap-4 bg-transparent transition-all duration-200 ">
-        {posts.map((post) => (
-          <div
-            key={post.id}
-            className="flex flex-col p-6 group hover:cursor-pointer md:flex-row gap-6 w-full bg-slate-100 dark:bg-slate-900 rounded-lg h-auto md:h-auto"
-          >
-            <div className="img_container px-2 w-auto h-full flex items-center overflow-hidden justify-center">
-              <img
-                src={post.thumbnail}
-                alt="Thumbnail"
-                className="transition-all w-auto md:w-[380px] md:h-[180px] bg-white group-hover:scale-125 duration-700 object-cover"
-              />
-            </div>
-            <div className="w-full flex flex-col md:px-4 items-center justify-between gap-6">
-              <div className="w-full titleAndDesc group flex flex-col gap-2 items-start justify-start">
-                <div className="title">
-                  <Link
-                    to="/"
-                    className="text-lg font-medium group-hover:text-red-600 text-gray-900 dark:text-gray-100"
-                  >
-                    {post.postTitle}
-                  </Link>
-                  <br />
-                  <Link className="text-gray-500 group-hover:text-red-400 dark:text-gray-400 line-clamp-5 md:line-clamp-3 ">
-                    {post.postDescription}
-                  </Link>
-                </div>
-              </div>
-              <div className="w-full pubsAndAdditionalInfo flex flex-col md:flex-row justify-start md:justify-between ">
-                <div className="publisher">
-                  <p className="text-md">
-                    - {post.auther} on {post.publishedDate}
-                  </p>
-                </div>
-                <div className="addons flex flex-row gap-3 items-end justify-end md:justify-end">
-                  <div className="flex items-center gap-1">
-                    <AiOutlineEye />
-                    <span>{post.views}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <AiOutlineComment />
-                    <span>{post.comments}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <AiOutlineHeart />
-                    <span>{post.Likes}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div className="container mx-auto px-4 py-8 min-h-screen">
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+          Latest Posts
+        </h1>
+
+        {posts.length === 0 ? (
+          <div className="text-center text-gray-500 dark:text-gray-400 text-xl mt-10">
+            No posts found.
           </div>
-        ))}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.map((post) => (
+              <div
+                key={post._id || post.id}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col"
+              >
+                <Link to={`/post/${post.slug || post._id}`} className="block relative overflow-hidden group h-48">
+                  <img
+                    src={post.thumbnail || "https://via.placeholder.com/400x200"}
+                    alt={post.postTitle}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </Link>
+
+                <div className="p-5 flex flex-col flex-1">
+                  <div className="flex-1">
+                    <Link to={`/post/${post.slug || post._id}`}>
+                      <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2">
+                        {post.postTitle}
+                      </h2>
+                    </Link>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
+                      {post.postDescription}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
+                      <span className="font-medium text-gray-900 dark:text-gray-200">
+                        By {post.auther || "Unknown"}
+                      </span>
+                      <span>
+                        {post.publishedDate ? new Date(post.publishedDate).toLocaleDateString() : "Recently"}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <Link
+                        to={`/post/${post.slug || post._id}`}
+                        className="text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:underline"
+                      >
+                        Read Article
+                      </Link>
+
+                      <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400 text-sm">
+                        <div className="flex items-center gap-1" title="Views">
+                          <AiOutlineEye />
+                          <span>{post.views || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1" title="Comments">
+                          <AiOutlineComment />
+                          <span>{post.comments || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1" title="Likes">
+                          <AiOutlineHeart />
+                          <span>{post.Likes || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
