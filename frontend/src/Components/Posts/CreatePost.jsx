@@ -25,8 +25,8 @@ function CreatePost() {
   const [imgUploadProgress, setImgUploadProgress] = useState(null);
   const [imgUploadError, setImgUploadError] = useState(null);
   const [publishError, setPublishError] = useState(null);
-  const {currentUser} = useSelector((state) => state.user)
-  
+  const { currentUser } = useSelector((state) => state.user)
+
   const [formData, setFormData] = useState({
     postTitle: "",
     postDescription: "",
@@ -93,11 +93,11 @@ function CreatePost() {
       console.log(error);
     }
   };
-  
-  const handleSubmit= async (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch("http://localhost:3000/api/posts/create", {
+      const res = await fetch("/api/posts/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -106,13 +106,13 @@ function CreatePost() {
         credentials: 'include'
       });
       const data = await res.json();
-      if(data.message === false){
+      if (data.message === false) {
         return setPublishError(data.error)
       }
-      if(!res.ok){
+      if (!res.ok) {
         return setPublishError(data.message)
       }
-      if(res.ok){
+      if (res.ok) {
         return setPublishError(null)
       }
       console.log(data);

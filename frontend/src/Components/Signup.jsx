@@ -37,7 +37,7 @@ function SignUp() {
       console.log("Sending data:", formData);
 
       // Send a POST request to the server
-      const res = await fetch("http://localhost:3000/api/auth/signup", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -153,7 +153,7 @@ function SignUp() {
                       onChange={handleChangeInForm}
                       id="password"
                       type="password"
-                      // required="true"
+                    // required="true"
                     />
                   </div>
                 </div>
@@ -175,7 +175,7 @@ function SignUp() {
                       "Sign up"
                     )}
                   </button>
-                  <OAuth  />
+                  <OAuth />
                 </div>
                 {errorMsg && (
                   <Alert className="mt-1" color="red">
