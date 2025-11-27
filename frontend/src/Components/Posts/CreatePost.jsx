@@ -15,7 +15,7 @@ import {
 import { app } from "../../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { set } from "mongoose";
+
 
 function CreatePost() {
   const [tags, setTags] = useState([]);
